@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" width="760" height="330" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="14">
+  <title>Brique 1 : site statique sur S3 privé, distribué par CloudFront</title>
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="760" height="330" fill="#ffffff"/>
+
+  <!-- Visiteur -->
+  <rect x="20" y="115" width="130" height="70" rx="8" fill="#f1f5f9" stroke="#334155"/>
+  <text x="85" y="145" text-anchor="middle" font-weight="600">Visiteur</text>
+  <text x="85" y="166" text-anchor="middle" fill="#475569">navigateur</text>
+
+  <!-- CloudFront -->
+  <rect x="270" y="95" width="190" height="110" rx="8" fill="#ede9fe" stroke="#6d28d9"/>
+  <text x="365" y="125" text-anchor="middle" font-weight="600">CloudFront</text>
+  <text x="365" y="147" text-anchor="middle" fill="#475569">distribution mondiale</text>
+  <text x="365" y="167" text-anchor="middle" fill="#475569">HTTP redirigé vers HTTPS</text>
+  <text x="365" y="187" text-anchor="middle" fill="#475569">page d'erreur 404</text>
+
+  <!-- S3 -->
+  <rect x="580" y="95" width="160" height="110" rx="8" fill="#dcfce7" stroke="#15803d"/>
+  <text x="660" y="125" text-anchor="middle" font-weight="600">Bucket S3</text>
+  <text x="660" y="147" text-anchor="middle" fill="#475569">privé, accès public</text>
+  <text x="660" y="167" text-anchor="middle" fill="#475569">bloqué</text>
+  <text x="660" y="187" text-anchor="middle" fill="#475569">Zurich (eu-central-2)</text>
+
+  <!-- Flèches -->
+  <line x1="150" y1="150" x2="268" y2="150" stroke="#334155" stroke-width="2" marker-end="url(#fleche)"/>
+  <text x="209" y="140" text-anchor="middle" fill="#334155">HTTPS</text>
+
+  <line x1="460" y1="150" x2="578" y2="150" stroke="#334155" stroke-width="2" marker-end="url(#fleche)"/>
+  <text x="519" y="140" text-anchor="middle" fill="#334155">OAC</text>
+
+  <!-- Accès direct refusé -->
+  <path d="M85 185 L85 275 L660 275 L660 207" fill="none" stroke="#b91c1c" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#fleche)"/>
+  <text x="372" y="265" text-anchor="middle" fill="#b91c1c" font-weight="600">accès direct au bucket : refusé (403)</text>
+
+  <!-- Légende -->
+  <text x="20" y="30" font-size="16" font-weight="600">Brique 1 : site statique S3 + CloudFront</text>
+  <text x="20" y="52" fill="#475569">Le bucket n'autorise que la lecture par cette distribution (Origin Access Control).</text>
+  <text x="20" y="316" fill="#475569">La région du bucket est Zurich ; CloudFront est un service mondial.</text>
+</svg>

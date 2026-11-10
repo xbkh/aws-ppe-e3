@@ -1,0 +1,61 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "RolesPoliciesProfilsDuProjetUniquement",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole", "iam:DeleteRole", "iam:GetRole", "iam:UpdateRole", "iam:UpdateAssumeRolePolicy",
+        "iam:TagRole", "iam:UntagRole",
+        "iam:AttachRolePolicy", "iam:DetachRolePolicy",
+        "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy",
+        "iam:ListRolePolicies", "iam:ListAttachedRolePolicies",
+        "iam:CreatePolicy", "iam:DeletePolicy", "iam:GetPolicy", "iam:TagPolicy",
+        "iam:CreatePolicyVersion", "iam:DeletePolicyVersion", "iam:GetPolicyVersion", "iam:ListPolicyVersions",
+        "iam:CreateInstanceProfile", "iam:DeleteInstanceProfile", "iam:GetInstanceProfile", "iam:TagInstanceProfile",
+        "iam:AddRoleToInstanceProfile", "iam:RemoveRoleFromInstanceProfile"
+      ],
+      "Resource": [
+        "arn:aws:iam::<ACCOUNT_ID>:role/ppe-e3-*",
+        "arn:aws:iam::<ACCOUNT_ID>:policy/ppe-e3-*",
+        "arn:aws:iam::<ACCOUNT_ID>:instance-profile/ppe-e3-*"
+      ]
+    },
+    {
+      "Sid": "PasserSeulementLesRolesDuProjet",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::<ACCOUNT_ID>:role/ppe-e3-*"
+    },
+    {
+      "Sid": "LectureDesElementsIam",
+      "Effect": "Allow",
+      "Action": [
+        "iam:ListPolicies", "iam:ListInstanceProfiles", "iam:ListInstanceProfilesForRole",
+        "iam:ListMFADevices", "iam:ListVirtualMFADevices", "iam:GetUser"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "GererSonPropreMfa",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateVirtualMFADevice", "iam:DeleteVirtualMFADevice",
+        "iam:EnableMFADevice", "iam:DeactivateMFADevice", "iam:ResyncMFADevice"
+      ],
+      "Resource": [
+        "arn:aws:iam::<ACCOUNT_ID>:mfa/${aws:username}*",
+        "arn:aws:iam::<ACCOUNT_ID>:user/${aws:username}"
+      ]
+    },
+    {
+      "Sid": "InterdireLeDroitAdministrateurSurLesRoles",
+      "Effect": "Deny",
+      "Action": ["iam:AttachRolePolicy", "iam:PutRolePolicy"],
+      "Resource": "*",
+      "Condition": {
+        "ArnEquals": { "iam:PolicyARN": "arn:aws:iam::aws:policy/AdministratorAccess" }
+      }
+    }
+  ]
+}
