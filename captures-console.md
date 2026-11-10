@@ -25,8 +25,14 @@ de la console, dans le tableau de bord IAM et dans les ARN. Recadrer ou masquer 
 | `brique-1-s3-cloudfront/captures/10-console-cloudfront-origine-oac.png` | CloudFront, la distribution, onglet Origins, l'origine ouverte | l'Origin Access Control `ppe-e3-oac` |
 | `brique-1-s3-cloudfront/captures/11-site-https-cadenas.png` | le navigateur sur le site | l'adresse avec le cadenas (la capture actuelle de la barre d'adresse ne montre pas le `https`) |
 
-La preuve du blocage public et de l'OAC existe déjà en ligne de commande (capture 05 de la brique
-1) : ces captures de la console la complètent.
+## Brique 2 (facultatif)
+
+| Fichier | Page de la console | Ce qui doit être visible |
+|---|---|---|
+| `brique-2-vpc/captures/04-console-vpc-resource-map.png` | VPC, Your VPCs, `ppe-e3-vpc`, onglet Resource map | les 6 sous-réseaux, les 3 tables de routage et l'Internet Gateway |
+
+Pour la brique 1, la preuve du blocage public et de l'OAC existe déjà en ligne de commande
+(capture 05) : les captures de la console la complètent.
 
 ## Ensuite
 

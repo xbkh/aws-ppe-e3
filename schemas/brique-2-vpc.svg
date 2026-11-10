@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13">
+  <title>Brique 2 : VPC 10.0.0.0/16 sur 2 zones, sous-réseaux publics, applicatifs et données</title>
+  <defs>
+    <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="900" height="600" fill="#ffffff"/>
+
+  <text x="20" y="28" font-size="16" font-weight="600">Brique 2 : VPC à 2 zones, public, applicatif et données</text>
+  <text x="20" y="48" fill="#475569">Région Zurich (eu-central-2). Le NAT Gateway n'existe que pendant les tests (facturé à l'heure).</text>
+
+  <!-- Internet -->
+  <rect x="375" y="62" width="150" height="34" rx="17" fill="#f1f5f9" stroke="#334155"/>
+  <text x="450" y="84" text-anchor="middle" font-weight="600">Internet</text>
+  <line x1="450" y1="96" x2="450" y2="144" stroke="#334155" stroke-width="2" marker-end="url(#fl)"/>
+
+  <!-- VPC -->
+  <rect x="20" y="110" width="860" height="470" rx="12" fill="#f8fafc" stroke="#0f766e" stroke-width="2"/>
+  <text x="34" y="134" font-weight="600" fill="#0f766e">VPC ppe-e3-vpc : 10.0.0.0/16</text>
+
+  <!-- Internet Gateway -->
+  <rect x="375" y="146" width="150" height="30" rx="6" fill="#ede9fe" stroke="#6d28d9"/>
+  <text x="450" y="166" text-anchor="middle" font-weight="600">Internet Gateway</text>
+
+  <!-- Colonnes de zones -->
+  <rect x="40" y="190" width="400" height="378" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-dasharray="6 4"/>
+  <text x="240" y="210" text-anchor="middle" font-weight="600" fill="#334155">Zone eu-central-2a</text>
+  <rect x="460" y="190" width="400" height="378" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-dasharray="6 4"/>
+  <text x="660" y="210" text-anchor="middle" font-weight="600" fill="#334155">Zone eu-central-2b</text>
+
+  <!-- Public -->
+  <rect x="56" y="222" width="368" height="100" rx="8" fill="#dcfce7" stroke="#15803d"/>
+  <text x="68" y="242" font-weight="600">Public A : 10.0.0.0/24</text>
+  <text x="68" y="260" fill="#475569">route 0.0.0.0/0 vers l'Internet Gateway</text>
+  <rect x="68" y="272" width="150" height="38" rx="6" fill="#ffffff" stroke="#15803d"/>
+  <text x="143" y="288" text-anchor="middle">Instance de test</text>
+  <text x="143" y="303" text-anchor="middle" fill="#475569">IP publique</text>
+  <rect x="236" y="272" width="176" height="38" rx="6" fill="#fef3c7" stroke="#b45309"/>
+  <text x="324" y="288" text-anchor="middle">NAT Gateway</text>
+  <text x="324" y="303" text-anchor="middle" fill="#475569">tests seulement</text>
+
+  <rect x="476" y="222" width="368" height="100" rx="8" fill="#dcfce7" stroke="#15803d"/>
+  <text x="488" y="242" font-weight="600">Public B : 10.0.1.0/24</text>
+  <text x="488" y="260" fill="#475569">route 0.0.0.0/0 vers l'Internet Gateway</text>
+  <text x="488" y="296" fill="#475569">(réservé à l'ALB de la brique 3)</text>
+
+  <!-- App -->
+  <rect x="56" y="336" width="368" height="100" rx="8" fill="#dbeafe" stroke="#1d4ed8"/>
+  <text x="68" y="356" font-weight="600">Applicatif A : 10.0.10.0/24</text>
+  <text x="68" y="374" fill="#475569">route 0.0.0.0/0 vers le NAT (sortie seulement)</text>
+  <rect x="68" y="386" width="150" height="38" rx="6" fill="#ffffff" stroke="#1d4ed8"/>
+  <text x="143" y="402" text-anchor="middle">Instance de test</text>
+  <text x="143" y="417" text-anchor="middle" fill="#475569">aucune IP publique</text>
+
+  <rect x="476" y="336" width="368" height="100" rx="8" fill="#dbeafe" stroke="#1d4ed8"/>
+  <text x="488" y="356" font-weight="600">Applicatif B : 10.0.11.0/24</text>
+  <text x="488" y="374" fill="#475569">route 0.0.0.0/0 vers le NAT (sortie seulement)</text>
+  <text x="488" y="410" fill="#475569">(serveurs de la brique 3)</text>
+
+  <!-- Données -->
+  <rect x="56" y="450" width="368" height="100" rx="8" fill="#fee2e2" stroke="#b91c1c"/>
+  <text x="68" y="470" font-weight="600">Données A : 10.0.20.0/24</text>
+  <text x="68" y="488" fill="#475569">aucune route vers Internet</text>
+  <text x="68" y="524" fill="#475569">(base de données de la brique 4)</text>
+
+  <rect x="476" y="450" width="368" height="100" rx="8" fill="#fee2e2" stroke="#b91c1c"/>
+  <text x="488" y="470" font-weight="600">Données B : 10.0.21.0/24</text>
+  <text x="488" y="488" fill="#475569">aucune route vers Internet</text>
+  <text x="488" y="524" fill="#475569">(réplique de la brique 5)</text>
+
+  <!-- Flèches -->
+  <!-- Internet Gateway vers les deux sous-réseaux publics, par l'espace entre les zones -->
+  <line x1="450" y1="176" x2="450" y2="250" stroke="#334155" stroke-width="2"/>
+  <line x1="450" y1="250" x2="428" y2="250" stroke="#334155" stroke-width="2" marker-end="url(#fl)"/>
+  <line x1="450" y1="250" x2="472" y2="250" stroke="#334155" stroke-width="2" marker-end="url(#fl)"/>
+  <!-- NAT vers le sous-réseau applicatif A : sortie seulement -->
+  <line x1="324" y1="312" x2="324" y2="334" stroke="#b45309" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#fl)"/>
+</svg>

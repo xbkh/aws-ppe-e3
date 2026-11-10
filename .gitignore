@@ -16,3 +16,11 @@ crash.log
 .DS_Store
 __pycache__/
 *.pyc
+
+# Identifiants AWS générés par les scripts
+ids.env
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/

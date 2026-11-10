@@ -1,0 +1,28 @@
+# Essai en local : l'application et une base PostgreSQL jetable.
+# Les identifiants ci-dessous ne servent qu'à ce test local ; sur AWS, le mot de passe viendra
+# de Secrets Manager.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: inscriptions
+      POSTGRES_USER: inscriptions
+      POSTGRES_PASSWORD: essai-local-seulement
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inscriptions -d inscriptions"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: inscriptions
+      DB_USER: inscriptions
+      DB_PASSWORD: essai-local-seulement
+    ports:
+      - "127.0.0.1:18080:8080"

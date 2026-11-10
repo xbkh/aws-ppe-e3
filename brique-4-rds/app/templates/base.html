@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titre %}Association Horizon{% endblock %}</title>
+  <style>
+    :root { --fond:#f7f5f0; --texte:#1f2a30; --accent:#1d6b73; --accent-fonce:#134c52; --bordure:#d8d3c8; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height:1.6; color:var(--texte); background:var(--fond); }
+    header { background:var(--accent); color:#fff; padding:1rem 1.5rem; }
+    header h1 { margin:0; font-size:1.4rem; }
+    main { max-width:44rem; margin:2rem auto; padding:0 1.5rem; }
+    h2 { color:var(--accent-fonce); }
+    label { display:block; margin-top:1rem; font-weight:600; }
+    input, select { width:100%; padding:.55rem .7rem; border:1px solid var(--bordure); border-radius:6px; font:inherit; background:#fff; }
+    button { margin-top:1.25rem; padding:.6rem 1.1rem; background:var(--accent); color:#fff; border:0; border-radius:6px; font:inherit; cursor:pointer; }
+    button:hover { background:var(--accent-fonce); }
+    .succes { background:#e3f4e6; border:1px solid #9ccfa4; padding:.7rem 1rem; border-radius:6px; }
+    .erreurs { background:#fbe9e7; border:1px solid #e0a39b; padding:.7rem 1rem; border-radius:6px; }
+    .erreurs ul { margin:0; padding-left:1.2rem; }
+    ul.inscrits { list-style:none; padding:0; }
+    ul.inscrits li { background:#fff; border:1px solid var(--bordure); border-radius:6px; padding:.6rem .9rem; margin-bottom:.5rem; }
+    ul.inscrits span { color:#55636b; font-size:.9rem; display:block; }
+    footer { max-width:44rem; margin:3rem auto 2rem; padding:0 1.5rem; color:#55636b; font-size:.85rem; }
+  </style>
+</head>
+<body>
+  <header><h1>Association Horizon</h1></header>
+  <main>{% block contenu %}{% endblock %}</main>
+  <footer>Association fictive créée pour un projet de formation. Servi par : {{ hote }}</footer>
+</body>
+</html>

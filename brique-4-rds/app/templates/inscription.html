@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titre %}Inscription — Association Horizon{% endblock %}
+{% block contenu %}
+  <h2>S'inscrire à un événement</h2>
+
+  {% if succes %}
+    <p class="succes">Votre inscription a bien été enregistrée. Merci !</p>
+  {% endif %}
+
+  {% if erreurs %}
+    <div class="erreurs" role="alert">
+      <ul>{% for e in erreurs %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('inscription') }}">
+    <label for="evenement">Événement</label>
+    <select id="evenement" name="evenement" required>
+      <option value="">— choisir —</option>
+      {% for e in evenements %}
+        <option value="{{ e }}" {% if e == valeurs.evenement %}selected{% endif %}>{{ e }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="nom">Nom</label>
+    <input id="nom" name="nom" maxlength="100" required value="{{ valeurs.nom }}">
+
+    <label for="email">Adresse e-mail</label>
+    <input id="email" name="email" type="email" maxlength="200" required value="{{ valeurs.email }}">
+
+    <button type="submit">Je m'inscris</button>
+  </form>
+
+  <h2>Dernières inscriptions</h2>
+  {% if inscrits %}
+    <ul class="inscrits">
+      {% for _id, evenement, nom, date in inscrits %}
+        <li>{{ nom }}<span>{{ evenement }} · {{ date.strftime('%d.%m.%Y %H:%M') }}</span></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Aucune inscription pour le moment.</p>
+  {% endif %}
+{% endblock %}
