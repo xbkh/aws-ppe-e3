@@ -1,4 +1,15 @@
+<p align="center"><img src="assets/banniere.svg" alt="PPE Cloud AWS : plateforme web résiliente, construite brique par brique" width="100%"></p>
+
 # PPE Cloud AWS — Plateforme web résiliente, construite brique par brique
+
+![Région](https://img.shields.io/badge/R%C3%A9gion-Zurich%20eu--central--2-FF9900?logo=amazonaws&logoColor=white)
+![Avancement](https://img.shields.io/badge/Briques-0%20%C3%A0%202%20termin%C3%A9es-15803d)
+![Tests](https://img.shields.io/badge/Tests-13%20r%C3%A9ussis-15803d?logo=pytest&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3-000000?logo=flask&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![Bash](https://img.shields.io/badge/Bash-scripts-4EAA25?logo=gnubash&logoColor=white)
 
 **Cours de référence :** Cloud AWS — Intégration de services réseau multiplateformes (CFC 300)
 **Classe :** E3
@@ -9,6 +20,236 @@
 > Les fiches officielles (`03-cloud-aws/`) demandent de choisir **un** projet sur 5. Ce document
 > décrit un projet « fil rouge » qui reprend les 5 projets l'un après l'autre, sous forme de
 > 5 briques. Les premières, plus simples, sont regroupées pour garder du temps aux dernières.
+
+## Avancement
+
+| | Brique | État | Résumé |
+|---|---|---|---|
+| <img src="assets/aws-icons/iam.svg" width="32" alt="IAM"> | 0, préparation | ✅ **terminée** | outils installés, connexion, budget, utilisateur IAM limité avec MFA |
+| <img src="assets/aws-icons/s3.svg" width="32" alt="S3"> <img src="assets/aws-icons/cloudfront.svg" width="32" alt="CloudFront"> | 1, S3 + CloudFront | ✅ **en ligne, testée** | site en HTTPS, bucket privé, accès direct refusé |
+| <img src="assets/aws-icons/vpc.svg" width="32" alt="VPC"> | 2, VPC | ✅ **faite, testée** | 6 sous-réseaux sur 2 zones, isolation prouvée ; NAT et instances supprimés |
+| <img src="assets/aws-icons/alb.svg" width="32" alt="ALB"> <img src="assets/aws-icons/ec2.svg" width="32" alt="EC2"> | 3, EC2 + ALB | ⏳ à faire | |
+| <img src="assets/aws-icons/rds.svg" width="32" alt="RDS"> | 4, RDS | 🚧 **application locale testée** | RDS à créer ; essai avec une vraie base PostgreSQL à faire (Docker arrêté sur le poste) |
+| <img src="assets/aws-icons/cloudwatch.svg" width="32" alt="CloudWatch"> <img src="assets/aws-icons/autoscaling.svg" width="32" alt="Auto Scaling"> | 5, résilience, IAM, supervision, coûts | ⏳ à faire | |
+
+Environnement : région **Zurich (`eu-central-2`)**, compte AWS personnel en plan gratuit (100 USD de
+crédits jusqu'au 10 mai 2027), budget d'alerte de 10 USD par mois.
+
+![Plateforme cible et avancement](schemas/architecture-cible.svg)
+
+## Services utilisés
+
+| | Service | Rôle dans le projet | Brique |
+|---|---|---|---|
+| <img src="assets/aws-icons/s3.svg" width="36" alt="S3"> | **Amazon S3** | stocke le site statique, bucket privé | 1 |
+| <img src="assets/aws-icons/cloudfront.svg" width="36" alt="CloudFront"> | **Amazon CloudFront** | distribue le site en HTTPS, accès au bucket par OAC | 1 |
+| <img src="assets/aws-icons/vpc.svg" width="36" alt="VPC"> | **Amazon VPC** | réseau isolé : 6 sous-réseaux, routage, NAT | 2 |
+| <img src="assets/aws-icons/ec2.svg" width="36" alt="EC2"> | **Amazon EC2** | serveurs de test, puis serveurs de l'application | 2, 3 |
+| <img src="assets/aws-icons/alb.svg" width="36" alt="Elastic Load Balancing"> | **Elastic Load Balancing** | répartit le trafic entre les serveurs | 3 |
+| <img src="assets/aws-icons/autoscaling.svg" width="36" alt="EC2 Auto Scaling"> | **EC2 Auto Scaling** | maintient 2 serveurs répartis sur 2 zones | 5 |
+| <img src="assets/aws-icons/rds.svg" width="36" alt="RDS"> | **Amazon RDS** | base PostgreSQL managée, en sous-réseau privé | 4, 5 |
+| <img src="assets/aws-icons/iam.svg" width="36" alt="IAM"> | **AWS IAM** | utilisateur à droits limités, rôles au moindre privilège | 0, 5 |
+| <img src="assets/aws-icons/systems-manager.svg" width="36" alt="Systems Manager"> | **AWS Systems Manager** | accès aux serveurs sans ouvrir le port 22 | 2 |
+| <img src="assets/aws-icons/secrets-manager.svg" width="36" alt="Secrets Manager"> | **AWS Secrets Manager** | mot de passe de la base, jamais dans le code | 4 |
+| <img src="assets/aws-icons/cloudwatch.svg" width="36" alt="CloudWatch"> | **Amazon CloudWatch** | alarmes et tableau de bord | 5 |
+| <img src="assets/aws-icons/budgets.svg" width="36" alt="Budgets"> | **AWS Budgets** | alerte à 80 % et 100 % de 10 USD | 0 |
+| <img src="assets/aws-icons/cost-explorer.svg" width="36" alt="Cost Explorer"> | **AWS Cost Explorer** | relevé des coûts en fin de semaine | 5 |
+
+Les services des briques 3, 4 (RDS, Secrets Manager) et 5 sont prévus, pas encore mis en place. Les
+icônes des services sont des fichiers officiels d'AWS, repris sans modification (voir
+[`assets/aws-icons/NOTICE.md`](assets/aws-icons/NOTICE.md)).
+
+## Rapport de réalisation
+
+Chaque brique a son détail (commandes, tests, problèmes) dans son dossier ; tout l'essentiel et
+toutes les captures sont repris ici. Les captures du terminal ont été prises dans un écran virtuel
+isolé ; celles de la console AWS sont recadrées pour masquer l'identifiant du compte.
+
+### <img src="assets/aws-icons/iam.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/budgets.svg" width="30" align="absmiddle" alt=""> Brique 0 — Préparation du poste et du compte
+
+Détail : [`brique-0-preparation/`](brique-0-preparation/README.md)
+
+**Outils.** AWS CLI 2.39.7 et plugin Session Manager 1.2.896.0, installés dans le dossier personnel
+(`~/.local/bin`), sans droits administrateur. Avant connexion, aucun identifiant n'est configuré.
+
+![Version de l'AWS CLI](brique-0-preparation/captures/01-aws-cli-version.png)
+
+![Version du plugin Session Manager](brique-0-preparation/captures/02-session-manager-plugin-version.png)
+
+![Emplacement des deux outils](brique-0-preparation/captures/03-outils-installes.png)
+
+![Aucun identifiant configuré avant la connexion](brique-0-preparation/captures/04-identifiants-absents.png)
+
+**Connexion et région.** `aws login` ouvre la page de connexion AWS : le mot de passe est saisi par
+l'étudiant dans le navigateur, jamais dans le terminal ni dans le dépôt. La région choisie est
+`eu-central-2` (Zurich) : elle est active et offre 3 zones de disponibilité.
+
+**Plan gratuit.** Le compte est en plan `FREE`, actif, avec 100 USD de crédits restants jusqu'au
+10 mai 2027. Les crédits sont consommés par l'usage : NAT Gateway, Application Load Balancer et RDS
+sont facturés à l'heure, d'où le budget d'alerte et le nettoyage quotidien.
+
+![Plan gratuit du compte](brique-0-preparation/captures/05-plan-gratuit.png)
+
+**Budget d'alerte (« jour 0 »).** Budget mensuel de 10 USD, sans déduire les crédits (pour suivre la
+consommation réelle), avec deux alertes par e-mail à 80 % et 100 % de la dépense réelle.
+
+![Budget créé](brique-0-preparation/captures/06-budget-cree.png)
+
+![Alertes du budget](brique-0-preparation/captures/07-alertes-budget.png)
+
+![Budget dans la console AWS](brique-0-preparation/captures/10-console-budgets.png)
+
+**Utilisateur IAM à droits limités.** Le compte racine n'est pas utilisé au quotidien.
+
+| Élément | Valeur |
+|---|---|
+| Groupe | `ppe-e3-users` |
+| Utilisateur | `ppe-e3-etudiant`, étiquette `Projet=ppe-e3`, MFA par passkey |
+| `PowerUserAccess` | tous les services AWS, sauf la gestion IAM |
+| `IAMUserChangePassword` | changer son propre mot de passe |
+| `ppe-e3-iam-scoped` | gestion IAM limitée aux rôles, politiques et profils `ppe-e3-*`, `iam:PassRole` limité à ces rôles, gestion de son propre MFA, interdiction d'attacher `AdministratorAccess` (fichier [`iam/ppe-e3-iam-scoped.json`](brique-0-preparation/iam/ppe-e3-iam-scoped.json)) |
+
+![Groupe, politiques et utilisateur IAM](brique-0-preparation/captures/08-utilisateur-iam.png)
+
+![Utilisateur IAM dans la console](brique-0-preparation/captures/11-console-utilisateurs-iam.png)
+
+![Le compte racine a un MFA et aucune clé d'accès](brique-0-preparation/captures/12-console-mfa-racine.png)
+
+**Preuve des droits limités.** Avec cet utilisateur : créer un utilisateur IAM ou un rôle sans le
+préfixe `ppe-e3-` est refusé (`AccessDenied`) ; créer puis supprimer un rôle `ppe-e3-test` fonctionne ;
+la lecture du budget et de la distribution CloudFront reste possible.
+
+![Droits de l'utilisateur IAM](brique-0-preparation/captures/09-droits-utilisateur-iam.png)
+
+### <img src="assets/aws-icons/s3.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/cloudfront.svg" width="30" align="absmiddle" alt=""> Brique 1 — Site vitrine sur S3 et CloudFront (projet 1)
+
+Détail : [`brique-1-s3-cloudfront/`](brique-1-s3-cloudfront/README.md)
+
+Le site de l'association « Horizon » (4 pages HTML et une feuille de style, dans
+[`site/`](brique-1-s3-cloudfront/site/)) est servi en **HTTPS** par CloudFront. Le bucket S3 est
+**privé** : seule la distribution CloudFront peut lire ses fichiers.
+
+![Schéma de la brique 1](schemas/brique-1-s3-cloudfront.svg)
+
+| Élément | Choix |
+|---|---|
+| Bucket S3 | Zurich, accès public bloqué, chiffrement SSE-S3, étiquette `Projet=ppe-e3` |
+| Accès du CDN au bucket | **Origin Access Control (OAC)**, signature SigV4 ; politique du bucket limitée à cette distribution |
+| CloudFront | HTTP redirigé vers HTTPS, objet racine `index.html`, compression, HTTP/2 et HTTP/3, `PriceClass_100` |
+| Pages introuvables | les erreurs 403 et 404 de l'origine renvoient `/error.html` avec le code 404 |
+| Certificat | certificat par défaut `*.cloudfront.net` (pas de domaine personnalisé) |
+
+*Écart avec la fiche officielle :* l'« hébergement de site web statique » du bucket n'est pas activé,
+car il impose un bucket public et ne sert qu'en HTTP. Le bucket privé avec OAC répond mieux à
+l'objectif de la fiche (« sécuriser l'accès au bucket : accès public contrôlé, HTTPS »). Les fichiers
+de configuration (valeurs factices) sont dans [`config/`](brique-1-s3-cloudfront/config/).
+
+| # | Test | Attendu | Résultat |
+|---|---|---|---|
+| 1 | page d'accueil en HTTPS | 200 | **200** |
+| 2 | page des événements en HTTPS | 200 | **200** |
+| 3 | `http://…cloudfront.net/` | redirection vers HTTPS | **301** |
+| 4 | page inexistante | page d'erreur personnalisée, code 404 | **404** |
+| 5 | accès direct au bucket | refusé | **403** |
+| 6 | statut de la politique du bucket | non public | `IsPublic: False` |
+| 7 | en-têtes de la réponse | passage par CloudFront | `x-cache: Hit from cloudfront` |
+
+![Page d'accueil servie par CloudFront](brique-1-s3-cloudfront/captures/01-site-accueil-https.png)
+
+![Page des événements](brique-1-s3-cloudfront/captures/03-page-evenements.png)
+
+![Page d'erreur 404 personnalisée](brique-1-s3-cloudfront/captures/02-page-erreur-404.png)
+
+![Tests HTTPS, redirection et page inexistante](brique-1-s3-cloudfront/captures/04-test-https-et-redirection.png)
+
+![Accès direct au bucket refusé, accès via CloudFront accepté](brique-1-s3-cloudfront/captures/05-acces-direct-bucket-refuse.png)
+
+![Bucket S3 dans la console](brique-1-s3-cloudfront/captures/06-console-s3-bucket.png)
+
+![Distribution CloudFront dans la console](brique-1-s3-cloudfront/captures/07-console-cloudfront-distribution.png)
+
+![Adresse du site dans le navigateur](brique-1-s3-cloudfront/captures/08-url-cloudfront-navigateur.png)
+
+### <img src="assets/aws-icons/vpc.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/systems-manager.svg" width="30" align="absmiddle" alt=""> Brique 2 — VPC à 2 zones, public et privé (projet 2)
+
+Détail : [`brique-2-vpc/`](brique-2-vpc/README.md) (scripts dans [`scripts/`](brique-2-vpc/scripts/))
+
+![Schéma de la brique 2](schemas/brique-2-vpc.svg)
+
+| Couche | Zone A | Zone B | Table de routage |
+|---|---|---|---|
+| Public | `10.0.0.0/24` | `10.0.1.0/24` | `0.0.0.0/0` vers l'Internet Gateway |
+| Applicatif | `10.0.10.0/24` | `10.0.11.0/24` | `0.0.0.0/0` vers le NAT Gateway (sortie seulement) |
+| Données | `10.0.20.0/24` | `10.0.21.0/24` | routes locales uniquement |
+
+VPC `10.0.0.0/16`. Groupes de sécurité : `ppe-e3-sg-public` (TCP 80 depuis Internet) et
+`ppe-e3-sg-prive` (TCP 80 **depuis le groupe public uniquement**). Aucune règle SSH : l'accès aux
+serveurs se fait par Session Manager, avec un rôle limité à `AmazonSSMManagedInstanceCore`.
+
+![Ressources réseau créées](brique-2-vpc/captures/01-ressources-reseau.png)
+
+| # | Test | Résultat |
+|---|---|---|
+| T1 | l'instance privée n'a pas d'IP publique | `None` |
+| T2 | instance publique depuis Internet | **200** |
+| T3 | instance privée depuis Internet | **injoignable** (délai dépassé) |
+| T4 | adresse de sortie de l'instance privée = adresse du NAT | **identiques** |
+| T5 | instance publique vers instance privée | **200** |
+| T6 | routes : publique vers IGW, app vers NAT, données locales seules | conforme |
+
+![Tests d'isolation](brique-2-vpc/captures/02-tests-isolation.png)
+
+*Compromis :* un seul NAT Gateway (zone A) : le moins cher, mais sans tolérance à la panne de la zone
+A ; en production, un NAT par zone.
+
+*Coût :* NAT, IP élastique et 2 instances ont existé environ 8 minutes (11 h 02 à 11 h 10), puis ont
+été supprimés par `05-nettoyage-quotidien.sh`. Le VPC, les sous-réseaux, l'Internet Gateway, les
+tables de routage et les groupes de sécurité restent : ils ne coûtent rien.
+
+![Vérification du nettoyage](brique-2-vpc/captures/03-nettoyage-verifie.png)
+
+### <img src="assets/aws-icons/alb.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/ec2.svg" width="30" align="absmiddle" alt=""> Brique 3 — EC2 + Application Load Balancer (projet 3)
+
+À faire. Détail prévu dans [`brique-3-ec2-alb/`](brique-3-ec2-alb/README.md).
+
+### <img src="assets/aws-icons/rds.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/secrets-manager.svg" width="30" align="absmiddle" alt=""> Brique 4 — Architecture 3 tiers avec RDS (projet 4)
+
+Détail : [`brique-4-rds/`](brique-4-rds/README.md) (code dans [`app/`](brique-4-rds/app/))
+
+*Fait :* l'application d'inscription (Flask, Gunicorn, PostgreSQL), écrite et testée en local avant
+de toucher à AWS. Requêtes paramétrées (pas d'injection SQL), échappement HTML, validation côté
+serveur, adresse e-mail jamais relue pour l'affichage, page 503 sans détail technique, conteneur sans
+droits administrateur, contrôle de santé `/health` indépendant de la base. 13 tests automatiques
+réussis.
+
+![Résultat des 13 tests](brique-4-rds/captures/01-tests-unitaires.png)
+
+*À faire :* essai avec une vraie base PostgreSQL (`docker compose up`, le service Docker du poste
+était arrêté), puis RDS dans les sous-réseaux « données », groupe de sécurité limité aux serveurs
+applicatifs, mot de passe dans Secrets Manager.
+
+### <img src="assets/aws-icons/cloudwatch.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/autoscaling.svg" width="30" align="absmiddle" alt=""> Brique 5 — Résilience, IAM, supervision et coûts (projet 5)
+
+À faire. Détail prévu dans [`brique-5-resilience/`](brique-5-resilience/README.md).
+
+### Problèmes rencontrés (tous briques)
+
+- **Descriptions de groupes de sécurité :** AWS n'accepte que de l'ASCII.
+- **Ordre de création du NAT :** il doit exister, avec sa route, avant l'instance privée, sinon
+  l'agent Systems Manager ne peut pas s'enregistrer.
+- **Bucket privé :** il répond 403, et non 404, pour un fichier absent : deux règles d'erreur
+  personnalisées sont nécessaires dans CloudFront.
+- **Déploiement CloudFront :** plusieurs minutes avant de pouvoir tester.
+- **Captures d'écran :** une capture de l'écran réel montrait d'autres fenêtres ; elles ont été
+  supprimées et remplacées par des captures d'un terminal dans un écran virtuel isolé.
+- **Docker :** service arrêté sur le poste, l'essai avec une vraie base reste à faire.
+
+---
+
+# Cahier des charges
+
+Les sections suivantes décrivent le cahier des charges du projet : contexte, planning, règles, étapes
+de chaque brique, rendu et barème.
 
 ## Contexte
 
@@ -232,15 +473,16 @@ Un dépôt Git avec un seul README principal et un sous-dossier par brique :
 
 ```
 aws-ppe-e3/
-├── README.md                  # ce document, devenu le rapport (synthèse, schéma final)
-├── brique-1-s3-cloudfront/      # captures, configurations, notes de la brique
-├── brique-2-vpc/
-├── brique-3-ec2-alb/
-├── brique-4-rds/
-├── brique-5-resilience/
-├── schemas/                   # un schéma par brique, plus le schéma final
-├── iac/                       # bonus : Terraform ou CloudFormation
-└── couts/                     # export du calculateur AWS, capture de la facture
+├── README.md                    # ce document : rapport de réalisation et cahier des charges
+├── brique-0-preparation/        # outils, connexion, budget, IAM : README, captures, iam/
+├── brique-1-s3-cloudfront/      # site/, config/, captures/, README
+├── brique-2-vpc/                # scripts/, captures/, README
+├── brique-3-ec2-alb/            # à faire
+├── brique-4-rds/                # app/ (Flask), captures/, README
+├── brique-5-resilience/         # à faire
+├── schemas/                     # un schéma par brique, plus le schéma final
+├── captures-console.md          # liste des captures de la console AWS
+└── couts/                       # export du calculateur AWS, capture de la facture (à faire)
 ```
 
 Chaque dossier de brique contient : ce qui a été fait, les commandes ou réglages importants, les
