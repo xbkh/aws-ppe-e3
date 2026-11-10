@@ -89,7 +89,9 @@ clouds) et pour relier ce projet au cours Azure.
 
 ## Règles pour tout le projet
 
-- **Région :** `eu-central-1` (Francfort) : tous les services du projet y sont disponibles.
+- **Région :** `eu-central-2` (Zurich). Cette région n'est pas activée par défaut : il faut
+  l'activer une fois (console, Account, AWS Regions, Enable). La disponibilité de chaque service
+  est vérifiée avant de l'utiliser.
 - **Accès aux serveurs :** via **AWS Systems Manager Session Manager**, sans ouvrir le port 22
   sur Internet. Si le SSH est utilisé, il est restreint à votre IP et justifié dans le rapport.
 - **Nommage et étiquettes :** chaque ressource porte un nom `ppe-e3-<role>` et l'étiquette
