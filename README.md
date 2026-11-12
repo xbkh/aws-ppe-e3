@@ -3,7 +3,7 @@
 # PPE Cloud AWS — Plateforme web résiliente, construite brique par brique
 
 ![Région](https://img.shields.io/badge/R%C3%A9gion-Zurich%20eu--central--2-FF9900?logo=amazonaws&logoColor=white)
-![Avancement](https://img.shields.io/badge/Briques-0%20%C3%A0%202%20termin%C3%A9es-15803d)
+![Avancement](https://img.shields.io/badge/Briques-0%20%C3%A0%203%20termin%C3%A9es-15803d)
 ![Tests](https://img.shields.io/badge/Tests-13%20r%C3%A9ussis-15803d?logo=pytest&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3-000000?logo=flask&logoColor=white)
@@ -28,7 +28,7 @@
 | <img src="assets/aws-icons/iam.svg" width="32" alt="IAM"> | 0, préparation | ✅ **terminée** | outils installés, connexion, budget, utilisateur IAM limité avec MFA |
 | <img src="assets/aws-icons/s3.svg" width="32" alt="S3"> <img src="assets/aws-icons/cloudfront.svg" width="32" alt="CloudFront"> | 1, S3 + CloudFront | ✅ **en ligne, testée** | site en HTTPS, bucket privé, accès direct refusé |
 | <img src="assets/aws-icons/vpc.svg" width="32" alt="VPC"> | 2, VPC | ✅ **faite, testée** | 6 sous-réseaux sur 2 zones, isolation prouvée ; NAT et instances supprimés |
-| <img src="assets/aws-icons/alb.svg" width="32" alt="ALB"> <img src="assets/aws-icons/ec2.svg" width="32" alt="EC2"> | 3, EC2 + ALB | ⏳ à faire | |
+| <img src="assets/aws-icons/alb.svg" width="32" alt="ALB"> <img src="assets/aws-icons/ec2.svg" width="32" alt="EC2"> | 3, EC2 + ALB | ✅ **déployée, testée** | 2 serveurs privés derrière un ALB, répartition 5/7 sur 12 requêtes, service maintenu après l'arrêt d'une instance ; ALB et instances supprimés |
 | <img src="assets/aws-icons/rds.svg" width="32" alt="RDS"> | 4, RDS | 🚧 **application locale testée** | RDS à créer ; essai avec une vraie base PostgreSQL à faire (Docker arrêté sur le poste) |
 | <img src="assets/aws-icons/cloudwatch.svg" width="32" alt="CloudWatch"> <img src="assets/aws-icons/autoscaling.svg" width="32" alt="Auto Scaling"> | 5, résilience, IAM, supervision, coûts | ⏳ à faire | |
 
@@ -210,7 +210,59 @@ tables de routage et les groupes de sécurité restent : ils ne coûtent rien.
 
 ### <img src="assets/aws-icons/alb.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/ec2.svg" width="30" align="absmiddle" alt=""> Brique 3 — EC2 + Application Load Balancer (projet 3)
 
-À faire. Détail prévu dans [`brique-3-ec2-alb/`](brique-3-ec2-alb/README.md).
+Détail : [`brique-3-ec2-alb/`](brique-3-ec2-alb/README.md) (script de démarrage dans [`userdata.sh`](brique-3-ec2-alb/userdata.sh))
+
+Deux serveurs web **privés** (sans IP publique), un par zone, reçoivent le trafic d'un **Application
+Load Balancer** placé dans les sous-réseaux publics de la brique 2. Les groupes de sécurité sont
+chaînés : le port 80 de l'ALB n'est ouvert qu'à l'IP du poste de test (d'après le compte rendu de la
+réalisation, la capture ne montre pas la source), et le port 8080 des serveurs n'est ouvert que depuis
+un groupe de sécurité, celui de l'ALB.
+
+![Schéma de la brique 3](schemas/brique-3-ec2-alb.svg)
+
+| Élément | Choix |
+|---|---|
+| Serveurs | 2 instances Amazon Linux 2023 (`ppe-e3-b3-web-a` en zone A, `-b` en zone B), service systemd `python3 -m http.server 8080`, aucun paquet à télécharger |
+| Load balancer | ALB `ppe-e3-b3-alb` sur les 2 sous-réseaux publics, écouteur HTTP 80 vers le port 8080 |
+| Groupe cible | `ppe-e3-b3-web`, HTTP 8080, contrôle de santé `/health` |
+| Groupes de sécurité | `ppe-e3-b3-alb` : TCP 80 depuis l'IP du poste ; `ppe-e3-b3-app` : TCP 8080 depuis le groupe de l'ALB uniquement ; aucune règle SSH |
+
+| # | Test | Résultat |
+|---|---|---|
+| T1 | sous-réseaux réutilisés de la brique 2 | 6 disponibles, 2 zones |
+| T2, T3 | règles de sécurité de l'ALB et des serveurs | TCP 80, puis TCP 8080 depuis un groupe de sécurité |
+| T4 | instances | 2 `running`, zones 2a et 2b, **aucune IP publique** |
+| T5 | ALB et écouteur | `active`, 2 zones, `forward` HTTP 80 |
+| T6 | santé des cibles | 2 cibles `healthy` (contrôle `/health`, port 8080) |
+| T7 | 12 requêtes vers l'ALB | **5 réponses de la zone A, 7 de la zone B** |
+| T8 | arrêt de l'instance B | cible B `unused`, cible A `healthy` |
+| T9 | requête pendant l'arrêt de B | **HTTP 200**, servie par A |
+| T10 | nettoyage | 2 instances `terminated`, 0 ALB, 0 groupe cible |
+
+![VPC et sous-réseaux réutilisés](brique-3-ec2-alb/captures/01-vpc-et-sous-reseaux.png)
+
+![Règle de sécurité de l'ALB](brique-3-ec2-alb/captures/02-securite-alb.png)
+
+![Règle de sécurité des serveurs](brique-3-ec2-alb/captures/03-securite-ec2.png)
+
+![Instances privées](brique-3-ec2-alb/captures/04-instances-privees.png)
+
+![ALB actif et écouteur](brique-3-ec2-alb/captures/05-alb-et-ecouteur.png)
+
+![Cibles saines](brique-3-ec2-alb/captures/06-cibles-saines.png)
+
+![Répartition de charge sur 12 requêtes](brique-3-ec2-alb/captures/07-repartition-de-charge.png)
+
+![Instance B arrêtée](brique-3-ec2-alb/captures/08-instance-arretee.png)
+
+![Service toujours disponible](brique-3-ec2-alb/captures/09-service-toujours-disponible.png)
+
+![Nettoyage vérifié](brique-3-ec2-alb/captures/10-nettoyage-verifie.png)
+
+*Limites :* les 12 requêtes forment un échantillon, pas un partage strict. Le test de panne est
+ponctuel : **la durée d'une éventuelle interruption n'est pas mesurée** (la brique 5 la mesure à
+l'échelle d'une zone). L'ALB n'est joignable que depuis l'IP du poste de test, en HTTP seulement.
+Les commandes exactes de cette réalisation ne sont pas dans un script du dépôt.
 
 ### <img src="assets/aws-icons/rds.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/secrets-manager.svg" width="30" align="absmiddle" alt=""> Brique 4 — Architecture 3 tiers avec RDS (projet 4)
 
@@ -240,6 +292,8 @@ applicatifs, mot de passe dans Secrets Manager.
 - **Bucket privé :** il répond 403, et non 404, pour un fichier absent : deux règles d'erreur
   personnalisées sont nécessaires dans CloudFront.
 - **Déploiement CloudFront :** plusieurs minutes avant de pouvoir tester.
+- **Cibles de l'ALB :** AWS refuse de rattacher une instance qui démarre encore ; il faut attendre
+  l'état `running`. Une résolution DNS a aussi expiré pendant un test (brique 3).
 - **Captures d'écran :** une capture de l'écran réel montrait d'autres fenêtres ; elles ont été
   supprimées et remplacées par des captures d'un terminal dans un écran virtuel isolé.
 - **Docker :** service arrêté sur le poste, l'essai avec une vraie base reste à faire.
@@ -477,7 +531,7 @@ aws-ppe-e3/
 ├── brique-0-preparation/        # outils, connexion, budget, IAM : README, captures, iam/
 ├── brique-1-s3-cloudfront/      # site/, config/, captures/, README
 ├── brique-2-vpc/                # scripts/, captures/, README
-├── brique-3-ec2-alb/            # à faire
+├── brique-3-ec2-alb/            # rapport et captures
 ├── brique-4-rds/                # app/ (Flask), captures/, README
 ├── brique-5-resilience/         # à faire
 ├── schemas/                     # un schéma par brique, plus le schéma final

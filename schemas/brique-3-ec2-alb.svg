@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" width="900" height="450" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="13">
+  <title>Brique 3 : deux EC2 privées derrière un Application Load Balancer</title>
+  <defs><marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <rect width="900" height="450" fill="#ffffff"/>
+  <text x="20" y="28" font-size="17" font-weight="700" fill="#0f172a">Brique 3 : deux EC2 privées derrière un Application Load Balancer</text>
+  <rect x="738" y="12" width="140" height="22" rx="11" fill="#dcfce7" stroke="#15803d"/>
+  <text x="808" y="27" text-anchor="middle" font-size="11.5" font-weight="700" fill="#15803d">BRIQUE 3 FAITE</text>
+
+  <!-- Poste de test -->
+  <rect x="360" y="44" width="200" height="44" rx="10" fill="#f1f5f9" stroke="#334155"/>
+  <text x="460" y="63" text-anchor="middle" font-weight="700">Poste de test</text>
+  <text x="460" y="80" text-anchor="middle" fill="#475569" font-size="12">seule IP autorisée sur le port 80</text>
+
+  <!-- VPC et zones -->
+  <rect x="20" y="100" width="860" height="300" rx="12" fill="#f8fafc" stroke="#0f766e" stroke-width="2"/>
+  <text x="34" y="120" font-weight="700" fill="#0f766e">VPC 10.0.0.0/16 (brique 2)</text>
+  <rect x="40" y="132" width="410" height="258" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-dasharray="6 4"/>
+  <rect x="470" y="132" width="410" height="258" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-dasharray="6 4"/>
+  <text x="245" y="150" text-anchor="middle" font-weight="700" fill="#334155">Zone eu-central-2a</text>
+  <text x="675" y="150" text-anchor="middle" font-weight="700" fill="#334155">Zone eu-central-2b</text>
+
+  <!-- Sous-réseaux publics -->
+  <rect x="52" y="158" width="386" height="70" rx="8" fill="#dcfce7" fill-opacity="0.6" stroke="#15803d"/>
+  <rect x="482" y="158" width="386" height="70" rx="8" fill="#dcfce7" fill-opacity="0.6" stroke="#15803d"/>
+  <text x="62" y="178" font-weight="700" fill="#15803d">Public A</text><text x="62" y="194" fill="#64748b" font-size="12">10.0.0.0/24</text>
+  <text x="858" y="178" text-anchor="end" font-weight="700" fill="#15803d">Public B</text><text x="858" y="194" text-anchor="end" fill="#64748b" font-size="12">10.0.1.0/24</text>
+
+  <!-- ALB sur les deux sous-réseaux publics -->
+  <rect x="318" y="164" width="284" height="60" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <clipPath id="k1"><rect x="326" y="168" width="52" height="52" rx="8"/></clipPath><g clip-path="url(#k1)"><g transform="translate(326 168) scale(0.8125)">
+    
+    <g id="Icon-Architecture/48/Arch_Elastic-Load-Balancing_48" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icon-Architecture-BG/48/Networking-Content-Delivery" fill="#8C4FFF">
+            <rect id="Rectangle" x="0" y="0" width="64" height="64"></rect>
+        </g>
+        <path d="M23.5,42 C17.71,42 13,37.29 13,31.5 C13,25.71 17.71,21 23.5,21 C29.29,21 34,25.71 34,31.5 C34,37.29 29.29,42 23.5,42 M48,48 C48,49.654 46.654,51 45,51 C43.346,51 42,49.654 42,48 C42,46.346 43.346,45 45,45 C46.654,45 48,46.346 48,48 M45,13 C46.654,13 48,14.346 48,16 C48,17.654 46.654,19 45,19 C43.346,19 42,17.654 42,16 C42,14.346 43.346,13 45,13 M48,29 C49.654,29 51,30.346 51,32 C51,33.654 49.654,35 48,35 C46.346,35 45,33.654 45,32 C45,30.346 46.346,29 48,29 M35.901,33 L43.102,33 C43.565,35.279 45.586,37 48,37 C50.757,37 53,34.757 53,32 C53,29.243 50.757,27 48,27 C45.586,27 43.565,28.721 43.102,31 L35.975,31 C35.916,29.541 35.614,28.146 35.096,26.856 L42.799,20.467 C43.466,20.797 44.206,21 45,21 C47.757,21 50,18.757 50,16 C50,13.243 47.757,11 45,11 C42.243,11 40,13.243 40,16 C40,17.224 40.459,18.331 41.191,19.201 L34.172,25.024 C31.977,21.42 28.021,19 23.5,19 C16.607,19 11,24.607 11,31.5 C11,38.393 16.607,44 23.5,44 C27.743,44 31.493,41.871 33.754,38.629 L41.191,44.799 C40.459,45.669 40,46.776 40,48 C40,50.757 42.243,53 45,53 C47.757,53 50,50.757 50,48 C50,45.243 47.757,43 45,43 C44.206,43 43.466,43.203 42.799,43.533 L34.77,36.873 C35.344,35.673 35.736,34.373 35.901,33" id="Elastic-Load-Balancing_Icon_48_Squid" fill="#FFFFFF"></path>
+    </g>
+</g></g>
+  <text x="388" y="190" font-weight="700">Application Load Balancer</text>
+  <text x="388" y="208" fill="#475569" font-size="12">écouteur HTTP 80 vers le port 8080</text>
+
+  <!-- Sous-réseaux applicatifs -->
+  <rect x="52" y="252" width="386" height="126" rx="8" fill="#dbeafe" fill-opacity="0.6" stroke="#1d4ed8"/>
+  <rect x="482" y="252" width="386" height="126" rx="8" fill="#dbeafe" fill-opacity="0.6" stroke="#1d4ed8"/>
+  <text x="430" y="270" text-anchor="end" font-weight="700" fill="#1d4ed8">Applicatif A</text><text x="430" y="286" text-anchor="end" fill="#64748b" font-size="12">10.0.10.0/24</text>
+  <text x="860" y="270" text-anchor="end" font-weight="700" fill="#1d4ed8">Applicatif B</text><text x="860" y="286" text-anchor="end" fill="#64748b" font-size="12">10.0.11.0/24</text>
+
+  <!-- EC2 -->
+  <clipPath id="k2"><rect x="76" y="296" width="56" height="56" rx="8"/></clipPath><g clip-path="url(#k2)"><g transform="translate(76 296) scale(0.875)">
+    
+    <g id="Icon-Architecture/48/Arch_Amazon-EC2_48" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icon-Architecture-BG/48/Compute" fill="#ED7100">
+            <rect id="Rectangle" x="0" y="0" width="64" height="64"></rect>
+        </g>
+        <path d="M22,41 L41,41 L41,23 L22,23 L22,41 Z M43,23 L46,23 L46,25 L43,25 L43,27 L46,27 L46,29 L43,29 L43,31 L46,31 L46,33 L43,33 L43,36 L46,36 L46,38 L43,38 L43,40 L46,40 L46,42 L42.863,42 C42.608,42.587 42.023,43 41.344,43 L41,43 L41,46 L39,46 L39,43 L37,43 L37,46 L35,46 L35,43 L33,43 L33,46 L31,46 L31,43 L29,43 L29,46 L27,46 L27,43 L24,43 L24,46 L22,46 L22,43 L21.656,43 C20.977,43 20.392,42.587 20.137,42 L18,42 L18,40 L20,40 L20,38 L18,38 L18,36 L20,36 L20,33 L18,33 L18,31 L20,31 L20,29 L18,29 L18,27 L20,27 L20,25 L18,25 L18,23 L20,23 L20,22.656 C20,21.743 20.743,21 21.656,21 L22,21 L22,18 L24,18 L24,21 L27,21 L27,18 L29,18 L29,21 L31,21 L31,18 L33,18 L33,21 L35,21 L35,18 L37,18 L37,21 L39,21 L39,18 L41,18 L41,21 L41.344,21 C42.257,21 43,21.743 43,22.656 L43,23 Z M32,52 L12,52 L12,32 L16,32 L16,30 L11.843,30 C10.826,30 10,30.827 10,31.843 L10,52.157 C10,53.173 10.826,54 11.843,54 L32.157,54 C33.174,54 34,53.173 34,52.157 L34,48 L32,48 L32,52 Z M54,11.843 L54,32.157 C54,33.173 53.174,34 52.157,34 L48,34 L48,32 L52,32 L52,12 L32,12 L32,16 L30,16 L30,11.843 C30,10.827 30.826,10 31.843,10 L52.157,10 C53.174,10 54,10.827 54,11.843 L54,11.843 Z" id="Amazon-EC2_Icon_48_Squid" fill="#FFFFFF"></path>
+    </g>
+</g></g>
+  <text x="142" y="318" font-weight="700">ppe-e3-b3-web-a</text>
+  <text x="142" y="336" fill="#475569" font-size="12">10.0.10.4 · port 8080</text>
+  <text x="142" y="352" fill="#475569" font-size="12">aucune IP publique</text>
+  <clipPath id="k3"><rect x="506" y="296" width="56" height="56" rx="8"/></clipPath><g clip-path="url(#k3)"><g transform="translate(506 296) scale(0.875)">
+    
+    <g id="Icon-Architecture/48/Arch_Amazon-EC2_48" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icon-Architecture-BG/48/Compute" fill="#ED7100">
+            <rect id="Rectangle" x="0" y="0" width="64" height="64"></rect>
+        </g>
+        <path d="M22,41 L41,41 L41,23 L22,23 L22,41 Z M43,23 L46,23 L46,25 L43,25 L43,27 L46,27 L46,29 L43,29 L43,31 L46,31 L46,33 L43,33 L43,36 L46,36 L46,38 L43,38 L43,40 L46,40 L46,42 L42.863,42 C42.608,42.587 42.023,43 41.344,43 L41,43 L41,46 L39,46 L39,43 L37,43 L37,46 L35,46 L35,43 L33,43 L33,46 L31,46 L31,43 L29,43 L29,46 L27,46 L27,43 L24,43 L24,46 L22,46 L22,43 L21.656,43 C20.977,43 20.392,42.587 20.137,42 L18,42 L18,40 L20,40 L20,38 L18,38 L18,36 L20,36 L20,33 L18,33 L18,31 L20,31 L20,29 L18,29 L18,27 L20,27 L20,25 L18,25 L18,23 L20,23 L20,22.656 C20,21.743 20.743,21 21.656,21 L22,21 L22,18 L24,18 L24,21 L27,21 L27,18 L29,18 L29,21 L31,21 L31,18 L33,18 L33,21 L35,21 L35,18 L37,18 L37,21 L39,21 L39,18 L41,18 L41,21 L41.344,21 C42.257,21 43,21.743 43,22.656 L43,23 Z M32,52 L12,52 L12,32 L16,32 L16,30 L11.843,30 C10.826,30 10,30.827 10,31.843 L10,52.157 C10,53.173 10.826,54 11.843,54 L32.157,54 C33.174,54 34,53.173 34,52.157 L34,48 L32,48 L32,52 Z M54,11.843 L54,32.157 C54,33.173 53.174,34 52.157,34 L48,34 L48,32 L52,32 L52,12 L32,12 L32,16 L30,16 L30,11.843 C30,10.827 30.826,10 31.843,10 L52.157,10 C53.174,10 54,10.827 54,11.843 L54,11.843 Z" id="Amazon-EC2_Icon_48_Squid" fill="#FFFFFF"></path>
+    </g>
+</g></g>
+  <text x="572" y="318" font-weight="700">ppe-e3-b3-web-b</text>
+  <text x="572" y="336" fill="#475569" font-size="12">10.0.11.226 · port 8080</text>
+  <text x="572" y="352" fill="#475569" font-size="12">aucune IP publique</text>
+
+  <!-- Poste de test vers l'ALB (dessiné au-dessus du fond du VPC) -->
+  <line x1="460" y1="88" x2="460" y2="162" stroke="#334155" stroke-width="2" marker-end="url(#fl)"/>
+  <text x="474" y="112" fill="#334155" font-size="12">HTTP 80</text>
+
+  <!-- ALB vers les deux serveurs -->
+  <polyline points="388,224 388,242 104,242 104,294" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#fl)"/>
+  <polyline points="532,224 532,294" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#fl)"/>
+
+  <text x="20" y="424" fill="#475569" font-size="12">Groupes de sécurité chaînés : le port 8080 des serveurs n'est ouvert que depuis le groupe de l'ALB. Les flèches vers les serveurs</text>
+  <text x="20" y="440" fill="#475569" font-size="12">portent les requêtes et le contrôle de santé (/health). Icônes : © Amazon Web Services, Inc.</text>
+</svg>

@@ -73,7 +73,7 @@
     </g>
 </g></g>
   <text x="524" y="302" font-weight="700">Application Load Balancer</text>
-  <rect x="524" y="308" width="80" height="22" rx="11" fill="#e2e8f0" stroke="#475569"/><text x="564.0" y="323" text-anchor="middle" font-size="11.5" font-weight="700" fill="#475569">BRIQUE 3</text>
+  <rect x="524" y="308" width="80" height="22" rx="11" fill="#dcfce7" stroke="#15803d"/><text x="564.0" y="323" text-anchor="middle" font-size="11.5" font-weight="700" fill="#15803d">BRIQUE 3</text>
   <clipPath id="c13"><rect x="300" y="362" width="48" height="48" rx="8"/></clipPath><g clip-path="url(#c13)"><g transform="translate(300 362) scale(0.75)">
     
     <g id="Icon-Architecture/48/Arch_Amazon-EC2_48" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -84,7 +84,7 @@
     </g>
 </g></g>
   <text x="356" y="382" font-weight="700">EC2</text>
-  <rect x="356" y="390" width="80" height="22" rx="11" fill="#e2e8f0" stroke="#475569"/><text x="396.0" y="405" text-anchor="middle" font-size="11.5" font-weight="700" fill="#475569">BRIQUE 3</text>
+  <rect x="356" y="390" width="80" height="22" rx="11" fill="#dcfce7" stroke="#15803d"/><text x="396.0" y="405" text-anchor="middle" font-size="11.5" font-weight="700" fill="#15803d">BRIQUE 3</text>
   <clipPath id="c14"><rect x="640" y="362" width="48" height="48" rx="8"/></clipPath><g clip-path="url(#c14)"><g transform="translate(640 362) scale(0.75)">
     
     <g id="Icon-Architecture/48/Arch_Amazon-EC2_48" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -95,7 +95,7 @@
     </g>
 </g></g>
   <text x="696" y="382" font-weight="700">EC2</text>
-  <rect x="696" y="390" width="80" height="22" rx="11" fill="#e2e8f0" stroke="#475569"/><text x="736.0" y="405" text-anchor="middle" font-size="11.5" font-weight="700" fill="#475569">BRIQUE 3</text>
+  <rect x="696" y="390" width="80" height="22" rx="11" fill="#dcfce7" stroke="#15803d"/><text x="736.0" y="405" text-anchor="middle" font-size="11.5" font-weight="700" fill="#15803d">BRIQUE 3</text>
   <clipPath id="c15"><rect x="300" y="442" width="48" height="48" rx="8"/></clipPath><g clip-path="url(#c15)"><g transform="translate(300 442) scale(0.75)">
     
     <g id="Icon-Architecture/48/Arch_Amazon-RDS_48" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
