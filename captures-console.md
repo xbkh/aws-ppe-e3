@@ -34,6 +34,16 @@ de la console, dans le tableau de bord IAM et dans les ARN. Recadrer ou masquer 
 Pour la brique 1, la preuve du blocage public et de l'OAC existe déjà en ligne de commande
 (capture 05) : les captures de la console la complètent.
 
+## Brique 5 (facultatif)
+
+| Fichier | Page de la console | Ce qui doit être visible |
+|---|---|---|
+| `brique-5-resilience/captures/08-console-tableau-de-bord.png` | CloudWatch, Dashboards, `ppe-e3`, période des 3 dernières heures | les graphes de serveurs sains (creux pendant la panne), de requêtes et d'erreurs 5xx |
+| `brique-5-resilience/captures/09-console-alarmes.png` | CloudWatch, Alarms | les 5 alarmes `ppe-e3-*` et l'historique de `ppe-e3-cibles-saines` |
+
+Ces pages se remplissent grâce aux métriques conservées par CloudWatch, même après la suppression de
+l'ALB et des serveurs : le tableau de bord et les alarmes ont été laissés en place pour cela.
+
 ## Ensuite
 
 Déposer les fichiers dans les dossiers indiqués, puis ajouter une ligne `![…](captures/…)` dans le

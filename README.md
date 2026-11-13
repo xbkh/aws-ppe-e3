@@ -3,8 +3,8 @@
 # PPE Cloud AWS — Plateforme web résiliente, construite brique par brique
 
 ![Région](https://img.shields.io/badge/R%C3%A9gion-Zurich%20eu--central--2-FF9900?logo=amazonaws&logoColor=white)
-![Avancement](https://img.shields.io/badge/Briques-0%20%C3%A0%203%20termin%C3%A9es-15803d)
-![Tests](https://img.shields.io/badge/Tests-13%20r%C3%A9ussis-15803d?logo=pytest&logoColor=white)
+![Avancement](https://img.shields.io/badge/Briques-0%20%C3%A0%205%20termin%C3%A9es-15803d)
+![Tests](https://img.shields.io/badge/Tests-16%20r%C3%A9ussis-15803d?logo=pytest&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3-000000?logo=flask&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
@@ -29,8 +29,8 @@
 | <img src="assets/aws-icons/s3.svg" width="32" alt="S3"> <img src="assets/aws-icons/cloudfront.svg" width="32" alt="CloudFront"> | 1, S3 + CloudFront | ✅ **en ligne, testée** | site en HTTPS, bucket privé, accès direct refusé |
 | <img src="assets/aws-icons/vpc.svg" width="32" alt="VPC"> | 2, VPC | ✅ **faite, testée** | 6 sous-réseaux sur 2 zones, isolation prouvée ; NAT et instances supprimés |
 | <img src="assets/aws-icons/alb.svg" width="32" alt="ALB"> <img src="assets/aws-icons/ec2.svg" width="32" alt="EC2"> | 3, EC2 + ALB | ✅ **déployée, testée** | 2 serveurs privés derrière un ALB, répartition 5/7 sur 12 requêtes, service maintenu après l'arrêt d'une instance ; ALB et instances supprimés |
-| <img src="assets/aws-icons/rds.svg" width="32" alt="RDS"> | 4, RDS | 🚧 **application locale testée** | RDS à créer ; essai avec une vraie base PostgreSQL à faire (Docker arrêté sur le poste) |
-| <img src="assets/aws-icons/cloudwatch.svg" width="32" alt="CloudWatch"> <img src="assets/aws-icons/autoscaling.svg" width="32" alt="Auto Scaling"> | 5, résilience, IAM, supervision, coûts | ⏳ à faire | |
+| <img src="assets/aws-icons/rds.svg" width="32" alt="RDS"> | 4, RDS | ✅ **déployée, testée** | base PostgreSQL privée et chiffrée, mot de passe dans Secrets Manager, inscription de bout en bout ; tout supprimé après les tests |
+| <img src="assets/aws-icons/cloudwatch.svg" width="32" alt="CloudWatch"> <img src="assets/aws-icons/autoscaling.svg" width="32" alt="Auto Scaling"> | 5, résilience, IAM, supervision, coûts | ✅ **faite, testée** | RDS Multi-AZ, Auto Scaling Group, moindre privilège prouvé, 5 alarmes, panne de zone mesurée (5 à 21 s) ; tout supprimé après les tests |
 
 Environnement : région **Zurich (`eu-central-2`)**, compte AWS personnel en plan gratuit (100 USD de
 crédits jusqu'au 10 mai 2027), budget d'alerte de 10 USD par mois.
@@ -55,7 +55,8 @@ crédits jusqu'au 10 mai 2027), budget d'alerte de 10 USD par mois.
 | <img src="assets/aws-icons/budgets.svg" width="36" alt="Budgets"> | **AWS Budgets** | alerte à 80 % et 100 % de 10 USD | 0 |
 | <img src="assets/aws-icons/cost-explorer.svg" width="36" alt="Cost Explorer"> | **AWS Cost Explorer** | relevé des coûts en fin de semaine | 5 |
 
-Les services des briques 3, 4 (RDS, Secrets Manager) et 5 sont prévus, pas encore mis en place. Les
+Tous ces services ont été mis en place et testés, puis les ressources facturées à l'heure ont été
+supprimées. Les
 icônes des services sont des fichiers officiels d'AWS, repris sans modification (voir
 [`assets/aws-icons/NOTICE.md`](assets/aws-icons/NOTICE.md)).
 
@@ -268,21 +269,99 @@ Les commandes exactes de cette réalisation ne sont pas dans un script du dépô
 
 Détail : [`brique-4-rds/`](brique-4-rds/README.md) (code dans [`app/`](brique-4-rds/app/))
 
-*Fait :* l'application d'inscription (Flask, Gunicorn, PostgreSQL), écrite et testée en local avant
-de toucher à AWS. Requêtes paramétrées (pas d'injection SQL), échappement HTML, validation côté
-serveur, adresse e-mail jamais relue pour l'affichage, page 503 sans détail technique, conteneur sans
-droits administrateur, contrôle de santé `/health` indépendant de la base. 13 tests automatiques
-réussis.
+Détail : [`brique-4-rds/`](brique-4-rds/README.md) (scripts dans [`scripts/`](brique-4-rds/scripts/),
+code dans [`app/`](brique-4-rds/app/))
 
-![Résultat des 13 tests](brique-4-rds/captures/01-tests-unitaires.png)
+Les trois niveaux sont en place et testés de bout en bout : un **ALB**, deux **serveurs d'application**
+privés et une base **PostgreSQL RDS** privée et chiffrée, dont le **mot de passe est géré par Secrets
+Manager** (jamais dans le code). L'application lit ce secret avec le rôle de l'instance.
 
-*À faire :* essai avec une vraie base PostgreSQL (`docker compose up`, le service Docker du poste
-était arrêté), puis RDS dans les sous-réseaux « données », groupe de sécurité limité aux serveurs
-applicatifs, mot de passe dans Secrets Manager.
+![Schéma de la brique 4](schemas/brique-4-rds.svg)
+
+| Groupe de sécurité | Entrée autorisée |
+|---|---|
+| `ppe-e3-b4-alb` | TCP 80 depuis l'IP du poste de test |
+| `ppe-e3-b4-app` | TCP 8080 depuis le groupe de l'ALB uniquement |
+| `ppe-e3-b4-db` | TCP 5432 depuis le groupe de l'application uniquement |
+
+| # | Test | Résultat |
+|---|---|---|
+| T1 | la base | PostgreSQL 16.15, **non publique, chiffrée** |
+| T3 | port 5432 depuis Internet | **injoignable** |
+| T4 | politique IAM de l'application | lire **un** secret et **un** bucket, rien d'autre |
+| T5 | IP publiques des serveurs | **aucune** |
+| T6 | formulaire envoyé (302), liste relue 6 fois par les 2 serveurs | l'inscription est **toujours présente** |
+| T7 | nom vide ; nom `<b>x</b>` | refusé sans enregistrement ; affiché comme **texte** |
+
+![Page d'inscription servie par l'ALB](brique-4-rds/captures/04-page-inscription.png)
+
+![Tests de bout en bout des 3 niveaux](brique-4-rds/captures/02-tests-bout-en-bout.png)
+
+![Secret géré par RDS, rotation automatique](brique-4-rds/captures/03-secret-gere-par-rds.png)
+
+![16 tests unitaires](brique-4-rds/captures/01-tests-unitaires.png)
+
+*Limites :* l'application utilise l'utilisateur administrateur de la base (un utilisateur dédié serait
+préférable), l'ALB est en HTTP et limité à l'IP du poste, et l'essai s'est fait directement contre RDS
+(le service Docker du poste était arrêté).
 
 ### <img src="assets/aws-icons/cloudwatch.svg" width="30" align="absmiddle" alt=""> <img src="assets/aws-icons/autoscaling.svg" width="30" align="absmiddle" alt=""> Brique 5 — Résilience, IAM, supervision et coûts (projet 5)
 
-À faire. Détail prévu dans [`brique-5-resilience/`](brique-5-resilience/README.md).
+Détail : [`brique-5-resilience/`](brique-5-resilience/README.md) (scripts dans
+[`scripts/`](brique-5-resilience/scripts/)) · coûts : [`couts/`](couts/README.md)
+
+L'architecture est rendue **tolérante à la perte d'une zone** : base RDS en **Multi-AZ**, serveurs dans un
+**Auto Scaling Group** sur 2 zones (remplacement automatique), un seul rôle IAM au **moindre privilège**,
+**5 alarmes** CloudWatch et un tableau de bord.
+
+![Schéma de la brique 5](schemas/brique-5-resilience.svg)
+
+![Base en Multi-AZ et Auto Scaling Group sur 2 zones](brique-5-resilience/captures/02-multi-az-et-asg.png)
+
+**Moindre privilège, prouvé depuis un serveur** : le rôle peut lire le secret de la base et le bucket de
+code, mais il est **refusé** pour lister tous les secrets, les buckets S3 ou les instances EC2,
+supprimer une instance ou créer un utilisateur IAM.
+
+![Droits du rôle de l'application](brique-5-resilience/captures/01-droits-iam-moindre-privilege.png)
+
+![Les 5 alarmes et le tableau de bord](brique-5-resilience/captures/03-alarmes-cloudwatch.png)
+
+**Test de panne** : perte simulée de la zone qui héberge la base (serveur de cette zone supprimé,
+bascule de RDS forcée), avec une requête par seconde envoyée à deux pages.
+
+| | Essai 2 | **Essai 3 (retenu)** |
+|---|---|---|
+| Requêtes envoyées | 274 | **280** |
+| `/health` : erreurs, plus longue coupure | 6, 5 s | **7, 8 s** |
+| `/inscription` (lit la base) : erreurs, plus longue coupure | 10, 21 s | **4, 5 s** |
+| Serveur supprimé, remplacé par l'ASG en | 2 s | **2 s** |
+| Alarme `cibles-saines` | muette (défaut, corrigé ensuite) | **ALARM à t+1 min 50, OK à t+3 min 50** |
+
+L'interruption mesurée va donc de **5 à 21 secondes** selon l'essai, puis le service revient seul ; le
+serveur de l'autre zone répond pendant ce temps.
+
+![Résultats du test de panne](brique-5-resilience/captures/05-resultats-test-panne.png)
+
+![Historique de l'alarme : ALARM puis OK](brique-5-resilience/captures/04-alarme-declenchee.png)
+
+![Remplacement automatique du serveur](brique-5-resilience/captures/06-remplacement-automatique.png)
+
+**Coût estimé** (prix de Zurich relevés via l'API AWS) : environ **118 USD par mois** allumée en
+permanence (2 serveurs 19,27 ; RDS Multi-AZ 33,58 ; NAT 41,76 ; ALB 21,68 ; disques 1,83), donc les
+100 USD de crédits dureraient environ 25 jours. Trois pistes chiffrées : n'allumer ALB, NAT et serveurs
+que 10 h par jour (environ 58 USD), RDS en une seule zone hors production (environ 17 USD), un serveur
+minimum hors production (environ 10,5 USD). Détail et ce qui n'est pas inclus : [`couts/`](couts/README.md).
+
+**Nettoyage** : tout ce qui est facturé à l'heure a été supprimé (0 instance, 0 NAT, 0 IP élastique,
+0 load balancer, 0 base RDS, 0 volume, 0 sauvegarde, 0 secret). Restent le VPC, le site S3 + CloudFront
+(toujours en ligne), les rôles IAM, les alarmes et le tableau de bord.
+
+![Nettoyage vérifié](brique-5-resilience/captures/07-nettoyage-verifie.png)
+
+*Limites :* c'est une **simulation** (un serveur supprimé et une bascule forcée, pas une vraie panne de
+zone) ; trois essais seulement, un client, une requête par seconde ; le NAT Gateway est unique, donc un
+point de défaillance ; les alertes ne sont envoyées nulle part tant qu'aucune adresse n'est abonnée au
+sujet SNS.
 
 ### Problèmes rencontrés (tous briques)
 
@@ -296,7 +375,18 @@ applicatifs, mot de passe dans Secrets Manager.
   l'état `running`. Une résolution DNS a aussi expiré pendant un test (brique 3).
 - **Captures d'écran :** une capture de l'écran réel montrait d'autres fenêtres ; elles ont été
   supprimées et remplacées par des captures d'un terminal dans un écran virtuel isolé.
-- **Docker :** service arrêté sur le poste, l'essai avec une vraie base reste à faire.
+- **Docker :** service arrêté sur le poste (le démarrer demande les droits administrateur) : l'application
+  a été essayée directement contre RDS.
+- **Politique IAM « existe déjà » :** la CLI avait rejoué un appel après un délai réseau ; le script est
+  maintenant idempotent.
+- **Auto Scaling, rôle de service pas prêt :** au premier usage il faut attendre quelques minutes ; le
+  script réessaie.
+- **Alarme muette :** une dimension fausse (nom du groupe cible mal extrait) faisait que l'alarme ne
+  recevait aucune donnée et restait « OK » pendant la panne. Corrigée, puis test refait.
+- **Test de panne interrompu au premier essai :** un délai dépassé arrêtait ma boucle de mesure ; la mesure
+  était perdue. Corrigé, trois essais menés.
+- **Faux positif dans un test IAM :** un identifiant d'instance factice mal formé était rejeté avant la
+  vérification des droits ; corrigé avec une vraie instance et `--dry-run`.
 
 ---
 
@@ -533,10 +623,10 @@ aws-ppe-e3/
 ├── brique-2-vpc/                # scripts/, captures/, README
 ├── brique-3-ec2-alb/            # rapport et captures
 ├── brique-4-rds/                # app/ (Flask), captures/, README
-├── brique-5-resilience/         # à faire
+├── brique-5-resilience/         # scripts/, captures/, panne-resultats.txt, README
 ├── schemas/                     # un schéma par brique, plus le schéma final
 ├── captures-console.md          # liste des captures de la console AWS
-└── couts/                       # export du calculateur AWS, capture de la facture (à faire)
+└── couts/                       # estimation mensuelle chiffrée (prix de Zurich)
 ```
 
 Chaque dossier de brique contient : ce qui a été fait, les commandes ou réglages importants, les

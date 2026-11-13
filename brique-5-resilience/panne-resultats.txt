@@ -1,0 +1,16 @@
+État avant la panne
+  RDS : zone eu-central-2b, Multi-AZ True
+  serveurs ASG : eu-central-2a:InService eu-central-2b:InService 
+PANNE (t=0) : perte de la zone eu-central-2b (serveur supprimé, bascule forcée de la base)
+
+Résultats (t=0 : début de la panne ; une requête par seconde)
+  requêtes envoyées : 280
+  /health       7 requêtes en erreur, de t=4s à t=22s, plus longue coupure 8s
+  /inscription  4 requêtes en erreur, de t=7s à t=22s, plus longue coupure 5s
+  codes /inscription : 000×2 502×1 200×276 503×1 
+  codes /health      : 000×2 502×5 200×273 
+
+État après la panne
+  RDS : zone eu-central-2b (la bascule a changé de zone si différente de l'état avant)
+  serveurs ASG : eu-central-2a:InService eu-central-2b:Terminating eu-central-2b:InService 
+  alarmes : ppe-e3-cibles-saines=OK ppe-e3-cpu-base=OK ppe-e3-cpu-serveurs=OK ppe-e3-erreurs-5xx=OK ppe-e3-stockage-base=OK 
